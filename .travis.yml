@@ -1,0 +1,10 @@
+language: c
+before_script:
+  - git clone https://github.com/asdf-vm/asdf.git
+  - . asdf/asdf.sh
+script:
+  - asdf plugin-add helmfile ./
+  - asdf list-all helmfile
+  - asdf plugin-test helmfile ./ 'helmfile --version'
+os:
+  - osx
