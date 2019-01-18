@@ -8,3 +8,4 @@ script:
   - asdf plugin-test helmfile ./ 'helmfile --version'
 os:
   - osx
+
