@@ -20,6 +20,7 @@ install() {
   [ "Linux" = "$(uname)" ] && platform="linux" || platform="darwin"
   local arch
   [ "x86_64" = "$(uname -m)" ] && arch="amd64" || arch="386"
+  [ "aarch64" = "$(uname -m)" ] && arch="arm64"
 
   local download_url
   download_url="https://github.com/roboll/helmfile/releases/download/v${version}/helmfile_${platform}_${arch}"
