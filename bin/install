@@ -43,6 +43,7 @@ install() {
   else
       curl -sL "$download_url" -o helmfile.tar.gz
       tar -C "$bin_install_path" -xf helmfile.tar.gz helmfile
+      rm helmfile.tar.gz
   fi
 }
 
