@@ -37,16 +37,16 @@ install() {
   # version number. So this should in principle check ~reliably for
   # whether we are at least 0.145.0 or not.
   if [ "$(printf '%s\n' "${version}" "0.145.0" | sort -t. -n | head -n1)" = "0.145.0" ]; then
-      local download_url="https://github.com/roboll/helmfile/releases/download/v${version}/helmfile_${platform}_${arch}"
-      echo "Downloading helmfile from ${download_url}"
-      curl -sL "$download_url" -o "$bin_path"
-      chmod +x "$bin_path"
-  else
       local download_url="https://github.com/helmfile/helmfile/releases/download/v${version}/helmfile_${version}_${platform}_${arch}.tar.gz"
       echo "Downloading helmfile from ${download_url}"
       curl -sL "$download_url" -o helmfile.tar.gz
       tar -C "$bin_install_path" -xf helmfile.tar.gz helmfile
       rm helmfile.tar.gz
+  else
+      local download_url="https://github.com/roboll/helmfile/releases/download/v${version}/helmfile_${platform}_${arch}"
+      echo "Downloading helmfile from ${download_url}"
+      curl -sL "$download_url" -o "$bin_path"
+      chmod +x "$bin_path"
   fi
 }
 
