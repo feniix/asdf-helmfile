@@ -22,6 +22,8 @@ install() {
   [ "aarch64" = "$(uname -m)" ] && arch="arm64"
   [ "arm64" = "$(uname -m)" ] && arch="arm64"
 
+  mkdir -p "${bin_install_path}"
+
   # We have a little hack here to try and determine (without any
   # external dependencies) whether we have a version number that is at
   # least 0.145.0, or less than 0.145.0 - because older versions are
@@ -34,25 +36,14 @@ install() {
   # will be 0.145.0, but otherwise, the result will be the provided
   # version number. So this should in principle check ~reliably for
   # whether we are at least 0.145.0 or not.
-  local repo=roboll
   if [ "$(printf '%s\n' "${version}" "0.145.0" | sort -t. -n | head -n1)" = "0.145.0" ]; then
-      repo=helmfile
-  fi
-
-  local download_url
-  if [ "${repo}" = roboll ]; then
-      download_url="https://github.com/${repo}/helmfile/releases/download/v${version}/helmfile_${platform}_${arch}"
-  else
-      download_url="https://github.com/${repo}/helmfile/releases/download/v${version}/helmfile_${version}_${platform}_${arch}.tar.gz"
-  fi
-
-  mkdir -p "${bin_install_path}"
-
-  echo "Downloading helmfile from ${download_url}"
-  if [ "${repo}" = roboll ]; then
+      local download_url="https://github.com/roboll/helmfile/releases/download/v${version}/helmfile_${platform}_${arch}"
+      echo "Downloading helmfile from ${download_url}"
       curl -sL "$download_url" -o "$bin_path"
       chmod +x "$bin_path"
   else
+      local download_url="https://github.com/helmfile/helmfile/releases/download/v${version}/helmfile_${version}_${platform}_${arch}.tar.gz"
+      echo "Downloading helmfile from ${download_url}"
       curl -sL "$download_url" -o helmfile.tar.gz
       tar -C "$bin_install_path" -xf helmfile.tar.gz helmfile
       rm helmfile.tar.gz
