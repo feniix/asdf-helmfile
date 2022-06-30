@@ -8,7 +8,7 @@ set -euo pipefail
 
 install() {
   local install_type=$1
-  [ "$install_type" != "version" ] && echo "intall type, $install_type, is not supported" && exit 1
+  [ "$install_type" != "version" ] && echo "install type, $install_type, is not supported" && exit 1
 
   local version=$2
   local install_path=$3
@@ -22,15 +22,28 @@ install() {
   [ "aarch64" = "$(uname -m)" ] && arch="arm64"
   [ "arm64" = "$(uname -m)" ] && arch="arm64"
 
+  local repo=roboll
+  if [ "$(printf '%s\n' "${version}" "0.145.0" | sort -t. -n | head -n1)" = "0.145.0" ]; then
+      repo=helmfile
+  fi
+
   local download_url
-  download_url="https://github.com/roboll/helmfile/releases/download/v${version}/helmfile_${platform}_${arch}"
+  if [ "${repo}" = roboll ]; then
+      download_url="https://github.com/${repo}/helmfile/releases/download/v${version}/helmfile_${platform}_${arch}"
+  else
+      download_url="https://github.com/${repo}/helmfile/releases/download/v${version}/helmfile_${version}_${platform}_${arch}.tar.gz"
+  fi
 
   mkdir -p "${bin_install_path}"
 
   echo "Downloading helmfile from ${download_url}"
-  curl -sL "$download_url" -o "$bin_path"
-  chmod +x "$bin_path"
+  if [ "${repo}" = roboll ]; then
+      curl -sL "$download_url" -o "$bin_path"
+      chmod +x "$bin_path"
+  else
+      curl -sL "$download_url" -o helmfile.tar.gz
+      tar -C "$bin_install_path" -xf helmfile.tar.gz helmfile
+  fi
 }
 
 install "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"
-
