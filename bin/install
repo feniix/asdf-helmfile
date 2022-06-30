@@ -22,6 +22,18 @@ install() {
   [ "aarch64" = "$(uname -m)" ] && arch="arm64"
   [ "arm64" = "$(uname -m)" ] && arch="arm64"
 
+  # We have a little hack here to try and determine (without any
+  # external dependencies) whether we have a version number that is at
+  # least 0.145.0, or less than 0.145.0 - because older versions are
+  # from the roboll/helmfile repo while newer ones are from the
+  # helmfile/helmfile repo. So the way we do this is we print both the
+  # requested version and 0.145.0 to stdout, run them through sort
+  # (which essentially does a comparison of them), grab the first one
+  # (so whichever one sorted first), and compare it to 0.145.0. If the
+  # provided version number if 0.145.0 or greater, then the result
+  # will be 0.145.0, but otherwise, the result will be the provided
+  # version number. So this should in principle check ~reliably for
+  # whether we are at least 0.145.0 or not.
   local repo=roboll
   if [ "$(printf '%s\n' "${version}" "0.145.0" | sort -t. -n | head -n1)" = "0.145.0" ]; then
       repo=helmfile
