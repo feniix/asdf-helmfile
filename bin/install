@@ -8,7 +8,7 @@ set -euo pipefail
 
 install() {
   local install_type=$1
-  [ "$install_type" != "version" ] && echo "intall type, $install_type, is not supported" && exit 1
+  [ "$install_type" != "version" ] && echo "install type, $install_type, is not supported" && exit 1
 
   local version=$2
   local install_path=$3
@@ -22,15 +22,32 @@ install() {
   [ "aarch64" = "$(uname -m)" ] && arch="arm64"
   [ "arm64" = "$(uname -m)" ] && arch="arm64"
 
-  local download_url
-  download_url="https://github.com/roboll/helmfile/releases/download/v${version}/helmfile_${platform}_${arch}"
-
   mkdir -p "${bin_install_path}"
 
-  echo "Downloading helmfile from ${download_url}"
-  curl -sL "$download_url" -o "$bin_path"
-  chmod +x "$bin_path"
+  # We have a little hack here to try and determine (without any
+  # external dependencies) whether we have a version number that is at
+  # least 0.145.0, or less than 0.145.0 - because older versions are
+  # from the roboll/helmfile repo while newer ones are from the
+  # helmfile/helmfile repo. So the way we do this is we print both the
+  # requested version and 0.145.0 to stdout, run them through sort
+  # (which essentially does a comparison of them), grab the first one
+  # (so whichever one sorted first), and compare it to 0.145.0. If the
+  # provided version number if 0.145.0 or greater, then the result
+  # will be 0.145.0, but otherwise, the result will be the provided
+  # version number. So this should in principle check ~reliably for
+  # whether we are at least 0.145.0 or not.
+  if [ "$(printf '%s\n' "${version}" "0.145.0" | sort -t. -n | head -n1)" = "0.145.0" ]; then
+      local download_url="https://github.com/helmfile/helmfile/releases/download/v${version}/helmfile_${version}_${platform}_${arch}.tar.gz"
+      echo "Downloading helmfile from ${download_url}"
+      curl -sL "$download_url" -o helmfile.tar.gz
+      tar -C "$bin_install_path" -xf helmfile.tar.gz helmfile
+      rm helmfile.tar.gz
+  else
+      local download_url="https://github.com/roboll/helmfile/releases/download/v${version}/helmfile_${platform}_${arch}"
+      echo "Downloading helmfile from ${download_url}"
+      curl -sL "$download_url" -o "$bin_path"
+      chmod +x "$bin_path"
+  fi
 }
 
 install "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"
-
