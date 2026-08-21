@@ -38,24 +38,30 @@ install() {
 
   mkdir -p "${bin_install_path}"
 
-  # We have a little hack here to try and determine (without any
-  # external dependencies) whether we have a version number that is at
-  # least 0.145.0, or less than 0.145.0 - because older versions are
-  # from the roboll/helmfile repo while newer ones are from the
-  # helmfile/helmfile repo. So the way we do this is we print both the
-  # requested version and 0.145.0 to stdout, run them through sort
-  # (which essentially does a comparison of them), grab the first one
-  # (so whichever one sorted first), and compare it to 0.145.0. If the
-  # provided version number if 0.145.0 or greater, then the result
-  # will be 0.145.0, but otherwise, the result will be the provided
-  # version number. So this should in principle check ~reliably for
-  # whether we are at least 0.145.0 or not.
-  if [ "$(printf '%s\n' "${version}" "0.145.0" | sort -t. -n | head -n1)" = "0.145.0" ]; then
+  # Releases before 0.145.0 used the roboll/helmfile repository and a
+  # different asset format.
+  local numeric_version="${version%%[-+]*}"
+  local major minor patch
+  IFS=. read -r major minor patch <<< "$numeric_version"
+  if [[ ! "$major" =~ ^[0-9]+$ || ! "$minor" =~ ^[0-9]+$ || ! "$patch" =~ ^[0-9]+$ ]]; then
+    echo "Unsupported Helmfile version: ${version}" >&2
+    return 1
+  fi
+
+  if ((major > 0 || minor >= 145)); then
       local download_url="https://github.com/helmfile/helmfile/releases/download/v${version}/helmfile_${version}_${platform}_${arch}.tar.gz"
+      local archive_path
+      archive_path=$(mktemp "${TMPDIR:-/tmp}/asdf-helmfile.XXXXXX")
       echo "Downloading helmfile from ${download_url}"
-      curl -fsSL "$download_url" -o helmfile.tar.gz
-      tar -C "$bin_install_path" -xf helmfile.tar.gz helmfile
-      rm helmfile.tar.gz
+      if ! curl -fsSL "$download_url" -o "$archive_path"; then
+        rm -f "$archive_path"
+        return 1
+      fi
+      if ! tar -C "$bin_install_path" -xf "$archive_path" helmfile; then
+        rm -f "$archive_path"
+        return 1
+      fi
+      rm -f "$archive_path"
   else
       local download_url="https://github.com/roboll/helmfile/releases/download/v${version}/helmfile_${platform}_${arch}"
       echo "Downloading helmfile from ${download_url}"
