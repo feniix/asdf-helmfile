@@ -28,6 +28,11 @@ is_current_release_format() {
   local version="${1%%[-+]*}"
   local major minor patch
   IFS=. read -r major minor patch <<< "$version"
+  # list-all advertises two-component tags (0.2, 0.6, ...) that have real
+  # roboll releases, so treat the missing components as zero rather than
+  # rejecting the version outright.
+  minor=${minor:-0}
+  patch=${patch:-0}
 
   if [[ ! "$major" =~ ^[0-9]+$ || ! "$minor" =~ ^[0-9]+$ || ! "$patch" =~ ^[0-9]+$ ]]; then
     fail "unsupported Helmfile version: ${1}"
