@@ -15,12 +15,12 @@ source "${plugin_dir}/lib/utils.bash"
 
 download_path=${ASDF_DOWNLOAD_PATH:-}
 temp_dir=""
+trap 'if [ -n "$temp_dir" ]; then rm -rf "$temp_dir"; fi' EXIT
 if [ -z "$download_path" ]; then
   temp_dir=$(mktemp -d "${TMPDIR:-/tmp}/asdf-helmfile.XXXXXX")
   download_path=$temp_dir
   ASDF_DOWNLOAD_PATH=$download_path "${plugin_dir}/bin/download"
 fi
-trap 'if [ -n "$temp_dir" ]; then rm -rf "$temp_dir"; fi' EXIT
 
 install_path="${ASDF_INSTALL_PATH%/}/bin"
 mkdir -p "$install_path"
