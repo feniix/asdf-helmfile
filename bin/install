@@ -36,7 +36,7 @@ install() {
   # will be 0.145.0, but otherwise, the result will be the provided
   # version number. So this should in principle check ~reliably for
   # whether we are at least 0.145.0 or not.
-  if [ "$(printf '%s\n' "${version}" "0.145.0" | sort -t. -n | head -n1)" = "0.145.0" ]; then
+  if [ "$(printf '%s\n' "${version}" "0.145.0" | sort -t. -k1,1n -k2,2n -k3,3n | head -n1)" = "0.145.0" ]; then
       local download_url="https://github.com/helmfile/helmfile/releases/download/v${version}/helmfile_${version}_${platform}_${arch}.tar.gz"
       echo "Downloading helmfile from ${download_url}"
       curl -sL "$download_url" -o helmfile.tar.gz
