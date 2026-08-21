@@ -16,11 +16,25 @@ install() {
   local bin_path="${bin_install_path}/helmfile"
 
   local platform
-  [ "Linux" = "$(uname)" ] && platform="linux" || platform="darwin"
+  case "$(uname)" in
+    Linux) platform="linux" ;;
+    Darwin) platform="darwin" ;;
+    *)
+      echo "Unsupported operating system: $(uname)" >&2
+      return 1
+      ;;
+  esac
+
   local arch
-  [ "x86_64" = "$(uname -m)" ] && arch="amd64" || arch="386"
-  [ "aarch64" = "$(uname -m)" ] && arch="arm64"
-  [ "arm64" = "$(uname -m)" ] && arch="arm64"
+  case "$(uname -m)" in
+    x86_64) arch="amd64" ;;
+    aarch64 | arm64) arch="arm64" ;;
+    i386 | i686) arch="386" ;;
+    *)
+      echo "Unsupported CPU architecture: $(uname -m)" >&2
+      return 1
+      ;;
+  esac
 
   mkdir -p "${bin_install_path}"
 
@@ -39,13 +53,13 @@ install() {
   if [ "$(printf '%s\n' "${version}" "0.145.0" | sort -t. -n | head -n1)" = "0.145.0" ]; then
       local download_url="https://github.com/helmfile/helmfile/releases/download/v${version}/helmfile_${version}_${platform}_${arch}.tar.gz"
       echo "Downloading helmfile from ${download_url}"
-      curl -sL "$download_url" -o helmfile.tar.gz
+      curl -fsSL "$download_url" -o helmfile.tar.gz
       tar -C "$bin_install_path" -xf helmfile.tar.gz helmfile
       rm helmfile.tar.gz
   else
       local download_url="https://github.com/roboll/helmfile/releases/download/v${version}/helmfile_${platform}_${arch}"
       echo "Downloading helmfile from ${download_url}"
-      curl -sL "$download_url" -o "$bin_path"
+      curl -fsSL "$download_url" -o "$bin_path"
       chmod +x "$bin_path"
   fi
 }
