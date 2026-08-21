@@ -1,14 +1,33 @@
 # asdf-helmfile
-[![Build Status](https://travis-ci.org/feniix/asdf-helmfile.svg?branch=master)](https://travis-ci.org/feniix/asdf-helmfile)
 
-[Helmfile](https://github.com/helmfile/helmfile) plugin for the [asdf](https://github.com/asdf-vm/asdf) version manager.
+[![CI](https://github.com/feniix/asdf-helmfile/actions/workflows/ci.yml/badge.svg)](https://github.com/feniix/asdf-helmfile/actions/workflows/ci.yml)
+
+[Helmfile](https://github.com/helmfile/helmfile) plugin for the
+[asdf](https://asdf-vm.com/) version manager.
 
 ## Install
 
-```
-asdf plugin-add helmfile https://github.com/feniix/asdf-helmfile.git
+```bash
+asdf plugin add helmfile https://github.com/feniix/asdf-helmfile.git
 ```
 
 ## Use
 
-Check out the [asdf](https://github.com/asdf-vm/asdf) readme for instructions.
+```bash
+asdf list all helmfile
+asdf install helmfile latest
+asdf set -u helmfile latest
+helmfile --version
+```
+
+See the [asdf documentation](https://asdf-vm.com/manage/versions.html) for
+version-management commands.
+
+## Supported platforms
+
+CI exercises the plugin on current Ubuntu and macOS runners. Helmfile release
+availability determines the supported operating-system and CPU combinations.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
